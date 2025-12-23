@@ -1,0 +1,72 @@
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    background-color: #e2e8f0;
+    /* Slate 200 - Soft frame background */
+    padding: 1.5rem;
+    border-radius: 16px;
+    /* softer corners */
+    margin-top: 2rem;
+    width: 100%;
+    max-width: 900px;
+    user-select: none;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    position: relative;
+    /* Context for Hand Overlay */
+}
+
+.row {
+    display: flex;
+    gap: 0.4rem;
+    justify-content: center;
+}
+
+.key {
+    height: 50px;
+    width: 50px;
+    background-color: #f8fafc;
+    /* White keys */
+    border-radius: 8px;
+    color: #475569;
+    /* Slate 600 text */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.15s ease;
+    text-transform: uppercase;
+    box-shadow: 0 2px 0 #cbd5e1;
+    /* Pseudo-3D effect */
+    border: none;
+}
+
+.active {
+    background-color: var(--accent-color);
+    /* Sky Blue */
+    color: #fff;
+    transform: translateY(2px);
+    box-shadow: 0 0 0 transparent;
+    /* Press effect */
+}
+
+/* Finger Guide Highlight (Next key to press) */
+.guide {
+    border: 2px solid var(--accent-color);
+    background-color: #e0f2fe;
+    /* Light Blue */
+    color: var(--accent-color);
+}
+
+.wide {
+    width: auto;
+    padding: 0 1.2rem;
+    font-size: 0.85rem;
+    flex-grow: 1;
+}
+
+.space {
+    width: 340px;
+}

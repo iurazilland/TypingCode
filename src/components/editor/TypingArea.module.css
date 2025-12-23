@@ -1,0 +1,99 @@
+.container {
+    position: relative;
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    /* Reduced size for more content */
+    line-height: 1.5;
+    background-color: var(--code-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    cursor: text;
+    min-height: 300px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    /* Align text to top */
+}
+
+.singleCodeBlock {
+    white-space: pre-wrap;
+    word-break: break-all;
+    width: 100%;
+    max-width: 900px;
+}
+
+.charWrapper {
+    display: inline;
+    position: relative;
+}
+
+.hiddenInput {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    resize: none;
+    cursor: default;
+}
+
+.char {
+    transition: color 0.1s ease, background-color 0.1s ease;
+}
+
+.correct {
+    color: #f8fafc;
+    /* White/Slate 50 - Bright for completed text */
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.incorrect {
+    color: #f87171;
+    /* Red */
+    background-color: rgba(248, 113, 113, 0.2);
+    border-radius: 2px;
+}
+
+.extra {
+    color: var(--error);
+    opacity: 0.9;
+}
+
+.pending {
+    color: #64748b;
+    /* Slate 500 - Dim grey for future text */
+}
+
+/* New Block/Bar Cursor Style */
+.cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.2em;
+    background-color: var(--cursor);
+    /* Yellow */
+    animation: blink 1s step-end infinite;
+    vertical-align: text-bottom;
+    position: absolute;
+    left: 0;
+    /* Adjust cursor to sit between chars */
+    margin-left: -1px;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+.successMessage {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--success);
+    font-weight: bold;
+    font-size: 1.2rem;
+}

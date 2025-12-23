@@ -1,0 +1,38 @@
+:root {
+  /* Minimalist High-Contrast Theme (VS Code Dark Inspired) */
+  --bg-primary: #0f172a;      /* Deep Slate Blue (Slate 900) - Solid Background */
+  --bg-secondary: #1e293b;    /* Lighter Slate (Slate 800) - Component Background */
+  
+  --text-primary: #f8fafc;    /* White/Slate 50 (High Contrast) */
+  --text-secondary: #94a3b8;  /* Muted Slate (Slate 400) */
+  --text-dim: #475569;        /* Dimmed (Slate 600) */
+
+  --accent-color: #38bdf8;    /* Sky Blue (Sky 400) - Primary Action/Highlight */
+  --border-color: #334155;    /* Slate 700 - Subtle Borders */
+
+  --code-bg: #1e293b;         /* Same as secondary, flat */
+  --code-text: #e2e8f0;       /* Slate 200 */
+
+  --success: #4ade80;         /* Green (Emerald 400) */
+  --error: #f87171;           /* Red (Red 400) */
+  --cursor: #fcd34d;          /* Amber 300 - Visible Cursor */
+
+  --font-mono: 'Fira Code', 'Roboto Mono', monospace;
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+}
+
+pre, code {
+  font-family: var(--font-mono);
+}

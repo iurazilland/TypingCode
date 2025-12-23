@@ -1,0 +1,40 @@
+@import './variables.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* We aren't using Tailwind classes for everything, but keeping the directives 
+   if the user changes their mind or Next.js includes them by default is fine. 
+   However, we requested --no-tailwind, so standard CSS is preferred. 
+   Let's clean this up to be pure CSS as requested. */
+
+/* Reset & Base */
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  height: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Utilities */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.text-mono {
+  font-family: var(--font-mono);
+}

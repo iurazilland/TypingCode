@@ -200,13 +200,47 @@
     right: 10px;
     background: rgba(74, 222, 128, 0.2);
     color: #4ade80;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 0.9rem;
     font-weight: bold;
     border: 1px solid rgba(74, 222, 128, 0.3);
     backdrop-filter: blur(4px);
     z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.nextButton {
+    background: #4ade80;
+    color: #0c0d11;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.nextButton:hover {
+    background: #22c55e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
+}
+
+.setCounter {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: normal;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    margin-left: 0.5rem;
 }
 
 /* Package Loading Overlay */

@@ -1,3 +1,9 @@
+export interface CodeSet {
+    code: string;
+    guide_ko?: string;
+    guide_en?: string;
+}
+
 export interface Level {
     id: number;
     language: string;
@@ -8,10 +14,8 @@ export interface Level {
     title_ko?: string;
     desc_en?: string;
     desc_ko?: string;
-    guide_en?: string;
-    guide_ko?: string;
     pre_code?: string;
-    target_code: string;
+    target_code: CodeSet[]; // Array of practice sets
     post_code?: string;
     difficulty: 'Basic' | 'Intermediate' | 'Advanced' | 'Master';
     level_type: 'practice' | 'challenge';

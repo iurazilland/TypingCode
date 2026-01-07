@@ -16,7 +16,7 @@ import styles from './TypingPage.module.css';
 
 export default function PracticePage() {
     const { runCode, output, isLoading, isPackagesLoading, isError } = usePyodide();
-    const { userInput, isCompleted, setTargetCode } = useTypingStore();
+    const { userInput, isCompleted, targetCode, setLevelData, currentSetIndex, codeSets, nextSet } = useTypingStore();
     const { currentLocale } = useLocaleStore();
     const { markLevelComplete } = useProgressStore();
 
@@ -24,7 +24,7 @@ export default function PracticePage() {
     const router = useRouter();
     const supabase = createClient();
 
-    const [levelData, setLevelData] = useState<Level | null>(null);
+    const [levelData, setLevelDataState] = useState<Level | null>(null);
     const [isDataLoading, setIsDataLoading] = useState(true);
 
     const language = (params.language as string) || 'python';
@@ -38,18 +38,18 @@ export default function PracticePage() {
                 .from('levels')
                 .select('*')
                 .eq('language', language)
-                .eq('course_id', courseId) // Filter by course_id
+                .eq('course_id', courseId)
                 .eq('list_order', levelId)
                 .single();
 
             if (data) {
-                setLevelData(data);
-                setTargetCode(data.target_code);
+                setLevelDataState(data);
+                setLevelData(data.target_code);
             }
             setIsDataLoading(false);
         };
         fetchLevel();
-    }, [language, courseId, levelId, setTargetCode]);
+    }, [language, courseId, levelId, setLevelData]);
 
     const handleRunCode = useCallback(async (code: string) => {
         let preppedCode = code;
@@ -69,16 +69,21 @@ ${code}
 
     useEffect(() => {
         if (isCompleted && levelData) {
+            const currentCode = targetCode;
             const fullCode = [
                 levelData.pre_code || '',
-                userInput,
+                currentCode,
                 levelData.post_code || ''
             ].join('\n').trim();
 
             handleRunCode(fullCode);
-            markLevelComplete(levelData.list_order);
+
+            // If all sets are completed, mark level as complete
+            if (currentSetIndex === codeSets.length - 1) {
+                markLevelComplete(levelData.list_order);
+            }
         }
-    }, [isCompleted, userInput, handleRunCode, levelData, markLevelComplete]);
+    }, [isCompleted, targetCode, handleRunCode, levelData, markLevelComplete, currentSetIndex, codeSets.length]);
 
     const [scale, setScale] = useState(1);
 
@@ -109,7 +114,12 @@ ${code}
 
     const title = currentLocale === 'ko' ? (levelData.title_ko || levelData.title_en) : levelData.title_en;
     const description = currentLocale === 'ko' ? (levelData.desc_ko || levelData.desc_en) : levelData.desc_en;
-    const guide = currentLocale === 'ko' ? levelData.guide_ko : null;
+
+    // Get guide for the CURRENT set
+    const currentSet = codeSets[currentSetIndex];
+    const guide = currentLocale === 'ko' ? currentSet?.guide_ko : currentSet?.guide_en;
+
+    const isAllSetsCompleted = isCompleted && currentSetIndex === codeSets.length - 1;
 
     return (
         <main className={styles.container}>
@@ -127,6 +137,7 @@ ${code}
                         <Link href={`/practice/${language}/${courseId}`} className={styles.navLink}>&larr; Levels</Link>
                         <h1>
                             {title} <span className={styles.levelBadge}>#{levelId}</span>
+                            <span className={styles.setCounter}>Set {currentSetIndex + 1} / {codeSets.length}</span>
                         </h1>
                     </div>
                 </header>
@@ -141,7 +152,19 @@ ${code}
                                 className="console-output"
                             />
                             {isCompleted && !isLoading && !isPackagesLoading && (
-                                <div className={styles.completedBadge}>✨ Completed!</div>
+                                <div className={styles.completedBadge}>
+                                    {isAllSetsCompleted ? "🎉 Course Completed!" : "✨ Set Completed!"}
+                                    {!isAllSetsCompleted && (
+                                        <button className={styles.nextButton} onClick={() => nextSet()}>
+                                            Next Set &rarr;
+                                        </button>
+                                    )}
+                                    {isAllSetsCompleted && levelId < 100 && (
+                                        <Link href={`/practice/${language}/${courseId}/${levelId + 1}`} className={styles.nextButton}>
+                                            Next Level &rarr;
+                                        </Link>
+                                    )}
+                                </div>
                             )}
                         </section>
 
@@ -150,7 +173,7 @@ ${code}
                                 <span>{courseId === 'basic' ? 'Guide / Instruction' : 'Visualization / Viewer'}</span>
                             </div>
                             <div className={styles.viewerContent}>
-                                {(courseId !== 'basic' && (levelData.target_code.includes('plt.') || levelData.pre_code?.includes('plt.'))) ? (
+                                {(courseId !== 'basic' && (targetCode.includes('plt.') || levelData.pre_code?.includes('plt.'))) ? (
                                     <div id="plot-target" className={styles.plotTarget}>
                                         {!output.length && <div className={styles.plotPlaceholder}>Graph will appear here</div>}
                                     </div>
@@ -174,8 +197,8 @@ ${code}
                 </div>
 
                 <div className={styles.keyboardContainer}>
-                    <VirtualKeyboard nextChar={userInput.length < levelData.target_code.length
-                        ? levelData.target_code[userInput.length]
+                    <VirtualKeyboard nextChar={userInput.length < targetCode.length
+                        ? targetCode[userInput.length]
                         : ''}
                     />
                 </div>

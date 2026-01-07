@@ -10,9 +10,9 @@ export const SEED_DATA = [
         title_ko: "첫 번째 단계",
         desc_en: "Print your first message in Python.",
         desc_ko: "파이썬으로 첫 메시지를 출력해보세요.",
-        guide_ko: "print() 함수를 사용하여 괄호 안의 문자열을 출력합니다.",
-        guide_en: "Use the print() function to output the string inside the parentheses.",
-        target_code: "print(\"Hello, Python!\")",
+        target_code: [
+            { code: "print(\"Hello, Python!\")\nprint(\"Welcome to TypingCode.\")", guide_ko: "print() 함수로 텍스트를 출력합니다." }
+        ],
         difficulty: 'Basic',
         level_type: 'practice'
     },
@@ -26,9 +26,9 @@ export const SEED_DATA = [
         title_ko: "데이터 저장하기",
         desc_en: "Use a variable to store and print a value.",
         desc_ko: "변수를 사용하여 값을 저장하고 출력합니다.",
-        guide_ko: "변수를 선언하고 그 값을 print()로 확인해보세요.",
-        guide_en: "Declare a variable and check its value with print().",
-        target_code: "msg = \"Learning Python\"\nprint(msg)",
+        target_code: [
+            { code: "msg = \"Learning Python\"\nprint(msg)", guide_ko: "변수를 선언하고 그 값을 print()로 확인해보세요." }
+        ],
         difficulty: 'Basic',
         level_type: 'practice'
     },
@@ -42,9 +42,9 @@ export const SEED_DATA = [
         title_ko: "기초 연산",
         desc_en: "Perform a simple addition.",
         desc_ko: "간단한 덧셈 연산을 수행합니다.",
-        guide_ko: "+ 연산자를 사용하여 두 숫자를 더해보세요.",
-        guide_en: "Use the + operator to add two numbers.",
-        target_code: "sum = 10 + 20\nprint(sum)",
+        target_code: [
+            { code: "sum = 10 + 20\nprint(sum)", guide_ko: "+ 연산자를 사용하여 두 숫자를 더해보세요." }
+        ],
         difficulty: 'Basic',
         level_type: 'practice'
     },
@@ -58,9 +58,9 @@ export const SEED_DATA = [
         title_ko: "F-문자열 포맷팅",
         desc_en: "Inject variables into strings easily.",
         desc_ko: "문자열 안에 변수를 쉽게 삽입하는 방법입니다.",
-        guide_ko: "문자열 앞에 f를 붙이고 { } 안에 변수 명을 넣으세요.",
-        guide_en: "Prefix the string with 'f' and place variable names inside { }.",
-        target_code: "name = \"Python\"\nprint(f\"Welcome to {name}\")",
+        target_code: [
+            { code: "name = \"Python\"\nprint(f\"Welcome to {name}\")", guide_ko: "문자열 앞에 f를 붙이고 { } 안에 변수 명을 넣으세요." }
+        ],
         difficulty: 'Basic',
         level_type: 'practice'
     },
@@ -74,9 +74,9 @@ export const SEED_DATA = [
         title_ko: "시스템 초기화",
         desc_en: "Initialize the system state.",
         desc_ko: "변수들을 조합하여 시스템 상태를 출력하세요.",
-        guide_ko: "앞서 배운 변환과 f-string을 활용하여 포맷팅된 메시지를 출력합니다.",
-        guide_en: "Use variables and f-strings to output a formatted status message.",
-        target_code: "app_name = \"TypingCode\"\nversion = 1.0\nstatus = \"Online\"\n\nprint(f\"--- {app_name} ---\")\nprint(f\"Ver: {version}\")\nprint(f\"State: {status}\")",
+        target_code: [
+            { code: "app_name = \"TypingCode\"\nversion = 1.0\nstatus = \"Online\"\n\nprint(f\"--- {app_name} ---\")\nprint(f\"Ver: {version}\")\nprint(f\"State: {status}\")", guide_ko: "앞서 배운 변환과 f-string을 활용하여 포맷팅된 메시지를 출력합니다." }
+        ],
         difficulty: 'Basic',
         level_type: 'challenge'
     },
@@ -90,9 +90,9 @@ export const SEED_DATA = [
         title_ko: "대문자 변환",
         desc_en: "Convert strings to uppercase.",
         desc_ko: "문자열을 대문자로 변환합니다.",
-        guide_ko: ".upper() 메서드를 사용하여 모든 글자를 대문자로 바꿉니다.",
-        guide_en: "Use the .upper() method to convert all characters to uppercase.",
-        target_code: "text = \"hello world\"\nprint(text.upper())",
+        target_code: [
+            { code: "text = \"hello world\"\nprint(text.upper())", guide_ko: ".upper() 메서드를 사용하여 모든 글자를 대문자로 바꿉니다." }
+        ],
         difficulty: 'Basic',
         level_type: 'practice'
     },
@@ -106,9 +106,9 @@ export const SEED_DATA = [
         title_ko: "공백 제거",
         desc_en: "Remove extra spaces from strings.",
         desc_ko: "문자열 양쪽의 공백을 제거합니다.",
-        guide_ko: ".strip() 메서드를 사용하여 불필요한 공백을 지워보세요.",
-        guide_en: "Use the .strip() method to remove unnecessary whitespace.",
-        target_code: "raw = \"   python   \"\nclean = raw.strip()\nprint(f\"Length: {len(clean)}\")",
+        target_code: [
+            { code: "raw = \"   python   \"\nclean = raw.strip()\nprint(f\"Length: {len(clean)}\")", guide_ko: ".strip() 메서드를 사용하여 불필요한 공백을 지워보세요." }
+        ],
         difficulty: 'Basic',
         level_type: 'practice'
     },
@@ -122,9 +122,9 @@ export const SEED_DATA = [
         title_ko: "멀티라인 로그",
         desc_en: "Format long text blocks.",
         desc_ko: "여러 줄의 텍스트를 한 번에 다룹니다.",
-        guide_ko: "따옴표 세 개(\"\"\")를 사용하여 여러 줄의 문자열을 작성하세요.",
-        guide_en: "Create a multi-line string using triple quotes (\"\"\").",
-        target_code: "log = \"\"\"\n[SYSTEM]\nProcess Started\nSuccess\n\"\"\"\nprint(log)",
+        target_code: [
+            { code: "log = \"\"\"\n[SYSTEM]\nProcess Started\nSuccess\n\"\"\"\nprint(log)", guide_ko: "따옴표 세 개(\"\"\")를 사용하여 여러 줄의 문자열을 작성하세요." }
+        ],
         difficulty: 'Basic',
         level_type: 'practice'
     },
@@ -138,9 +138,9 @@ export const SEED_DATA = [
         title_ko: "기초 슬라이싱",
         desc_en: "Extract parts of a string.",
         desc_ko: "문자열의 특정 부분을 추출합니다.",
-        guide_ko: "[start:end] 형식을 사용하여 인덱스 3번부터 끝까지 출력해보세요.",
-        guide_en: "Use [3:] to extract the string from index 3 to the end.",
-        target_code: "code = \"PY-2024\"\nyear = code[3:]\nprint(year)",
+        target_code: [
+            { code: "code = \"PY-2024\"\nyear = code[3:]\nprint(year)", guide_ko: "[start:end] 형식을 사용하여 인덱스 3번부터 끝까지 출력해보세요." }
+        ],
         difficulty: 'Basic',
         level_type: 'practice'
     },
@@ -154,9 +154,9 @@ export const SEED_DATA = [
         title_ko: "유저 프로필 생성기",
         desc_en: "Generate a profile summary.",
         desc_ko: "유저 정보를 정해진 형식으로 출력하세요.",
-        guide_ko: "upper()와 f-string을 결합하여 프로필 리포트를 만듭니다.",
-        guide_en: "Combine upper() and f-strings to generate a profile report.",
-        target_code: "user_id = \"dev_01\"\nscore = 4500\nreport = f\"ID: {user_id.upper()}\\nScore: {score:,}\"\nprint(report)",
+        target_code: [
+            { code: "user_id = \"dev_01\"\nscore = 4500\nreport = f\"ID: {user_id.upper()}\\nScore: {score:,}\"\nprint(report)", guide_ko: "upper()와 f-string을 결합하여 프로필 리포트를 만듭니다." }
+        ],
         difficulty: 'Basic',
         level_type: 'challenge'
     }
@@ -175,7 +175,9 @@ for (let i = 11; i <= 100; i++) {
         title_ko: isChallenge ? `챌린지: 단계 ${i}` : `파이썬 기초: ${i}`,
         desc_en: `Mastering Python concepts at Level ${i}.`,
         desc_ko: `${i}단계 개념을 익히고 실습합니다.`,
-        target_code: `print("Python Skill Level: ${i}")`,
+        target_code: [
+            { code: `print("Python Skill Level: ${i}")`, guide_ko: `${i}단계 연습 코드를 작성해 보세요.` }
+        ],
         difficulty: i > 80 ? 'Advanced' : i > 40 ? 'Intermediate' : 'Basic',
         level_type: isChallenge ? 'challenge' : 'practice'
     });

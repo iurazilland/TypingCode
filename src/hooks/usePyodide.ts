@@ -5,9 +5,11 @@ import { useState, useEffect, useCallback } from 'react';
 // Define types for Pyodide
 interface PyodideInterface {
     runPython: (code: string) => any;
+    runPythonAsync: (code: string) => Promise<any>;
     setStdout: (options: { batched: (msg: string) => void }) => void;
     setStderr: (options: { batched: (msg: string) => void }) => void;
     loadPackage: (packages: string[]) => Promise<void>;
+    loadPackagesFromImports: (code: string) => Promise<void>;
 }
 
 declare global {
@@ -19,6 +21,7 @@ declare global {
 export function usePyodide() {
     const [pyodide, setPyodide] = useState<PyodideInterface | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isPackagesLoading, setIsPackagesLoading] = useState(false);
     const [output, setOutput] = useState<string[]>([]);
     const [isError, setIsError] = useState(false);
 
@@ -27,7 +30,6 @@ export function usePyodide() {
 
         const initPyodide = async () => {
             try {
-                // Wait for the script to be loaded
                 if (!window.loadPyodide) {
                     if (!document.getElementById('pyodide-script')) {
                         const script = document.createElement('script');
@@ -35,7 +37,6 @@ export function usePyodide() {
                         script.id = 'pyodide-script';
                         document.body.appendChild(script);
                     }
-                    // Wait just a bit/poll for it
                     await new Promise<void>((resolve) => {
                         const check = () => {
                             if (window.loadPyodide) resolve();
@@ -83,18 +84,22 @@ export function usePyodide() {
     const runCode = useCallback(async (code: string) => {
         if (!pyodide) return;
 
-        setOutput([]); // Clear previous output
+        setOutput([]);
         setIsError(false);
 
         try {
-            // In a real app, we might want to load packages detected in code
-            // await pyodide.loadPackagesFromImports(code);
-            await pyodide.runPython(code);
+            // Check for imports and load required packages automatically
+            setIsPackagesLoading(true);
+            await pyodide.loadPackagesFromImports(code);
+            setIsPackagesLoading(false);
+
+            await pyodide.runPythonAsync(code);
         } catch (err: any) {
+            setIsPackagesLoading(false);
             setIsError(true);
             setOutput((prev) => [...prev, String(err)]);
         }
     }, [pyodide]);
 
-    return { runCode, output, isLoading, isError };
+    return { runCode, output, isLoading, isPackagesLoading, isError };
 }

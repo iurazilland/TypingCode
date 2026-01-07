@@ -1,75 +1,42 @@
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import styles from './LevelSelection.module.css';
-import { PYTHON_LEVELS } from '@/lib/data/python-levels';
+import styles from './CourseSelection.module.css';
 import { useLocaleStore } from '@/lib/i18n';
-import { useProgressStore } from '@/lib/progress';
 
-const LEVELS_PER_PAGE = 20;
-
-export default function LevelSelectionPage() {
+export default function CourseSelectionPage() {
     const params = useParams();
-    const language = params.language;
-    const { currentLocale, t } = useLocaleStore();
-    const { isLevelUnlocked, completedLevels } = useProgressStore();
-    const [mounted, setMounted] = useState(false);
+    const { currentLocale } = useLocaleStore();
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+    // Ensure we don't use literal placeholder strings during hydration
+    let language = (params.language as string) || 'python';
+    if (language === '[language]') language = 'python';
 
-    // State for infinite scroll
-    const [visibleCount, setVisibleCount] = useState(LEVELS_PER_PAGE);
-
-    // Calculate the highest unlocked level to scroll to
-    // Make sure we only use client data after mount to avoid hydration mismatch
-    const safeCompletedLevels = mounted ? completedLevels : [];
-    const latestLevelId = safeCompletedLevels.length > 0 ? Math.max(...safeCompletedLevels) + 1 : 1;
-
-    // Ref for auto-scrolling to current level
-    const currentLevelRef = useRef<HTMLAnchorElement>(null);
-    const hasScrolledRef = useRef(false);
-
-    // Load more levels
-    const loadMore = () => {
-        setVisibleCount(prev => Math.min(prev + 10, PYTHON_LEVELS.length));
-    };
-
-    // Infinite scroll observer
-    const loaderRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) {
-                loadMore();
-            }
-        });
-        if (loaderRef.current) observer.observe(loaderRef.current);
-        return () => observer.disconnect();
-    }, []);
-
-    // Expand list if current level is deeper than initial view
-    useEffect(() => {
-        if (mounted && latestLevelId > visibleCount) {
-            // Ensure we load enough to see the latest level
-            setVisibleCount(Math.ceil(latestLevelId / 10) * 10 + 10);
+    const courses = [
+        {
+            id: 'basic',
+            title_en: 'Python Fundamentals',
+            title_ko: '파이썬 기초 문법',
+            desc_en: 'Master the basics with 100 progressive typing lessons. Variables, Loops, Functions and more.',
+            desc_ko: '100단계의 체계적인 연습을 통해 파이썬 기초를 마스터하세요. 변수, 반복문, 함수 등을 배웁니다.',
+            icon: '🐍',
+            isPremium: false,
+            levels: 100,
+            difficulty: 'Beginner'
+        },
+        {
+            id: 'advanced',
+            title_en: 'Data Science & Plotting',
+            title_ko: '데이터 분석 및 시각화',
+            desc_en: 'Learn professional libraries like Pandas and Matplotlib. Includes real-time graph rendering.',
+            desc_ko: 'Pandas와 Matplotlib 같은 실무 라이브러리를 배웁니다. 실시간 그래프 출력 기능을 제공합니다.',
+            icon: '📊',
+            isPremium: true,
+            levels: 50,
+            difficulty: 'Advanced'
         }
-    }, [latestLevelId, mounted, visibleCount]); // Run when latestLevelId changes -> depends on mounted
-
-    // Auto-scroll to current level
-    useEffect(() => {
-        if (!hasScrolledRef.current && mounted && currentLevelRef.current) {
-            currentLevelRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            hasScrolledRef.current = true;
-        }
-    }, [visibleCount, latestLevelId, mounted]);
-
-    // Handle Hydration: Because localStorage is client-side, initially everything might render based on default state.
-    // Zustand persist usually handles this, but there might be a flash. 
-    // For now, let's just render.
+    ];
 
     return (
         <div className={styles.container}>
@@ -77,66 +44,51 @@ export default function LevelSelectionPage() {
                 <div className={styles.breadcrumbs}>
                     <Link href="/practice" className={styles.crumbLink}>Languages</Link>
                     <span className={styles.separator}>/</span>
-                    <span className={styles.current}>{language}</span>
+                    <span className={styles.current}>{language.toUpperCase()}</span>
                 </div>
-                <h1 className={styles.title}>{t('select_level')}</h1>
-                <p className={styles.subtitle}>{t('completed_levels')}: {mounted ? completedLevels.length : 0}</p>
+                <h1 className={styles.title}>
+                    {currentLocale === 'ko' ? '학습 코스 선택' : 'Select Your Course'}
+                </h1>
+                <p className={styles.subtitle}>
+                    {currentLocale === 'ko'
+                        ? '원하는 학습 경로를 선택하여 타이핑 연습을 시작하세요.'
+                        : 'Choose a learning path to begin your typing journey'}
+                </p>
             </header>
 
-            <div className={styles.list}>
-                {PYTHON_LEVELS.slice(0, visibleCount).map((level) => {
-                    // Use Store Logic - BUT respect hydration
-                    const isUnlocked = mounted ? isLevelUnlocked(level.id) : level.id === 1;
-                    // Highlight the "next" level to play (first unlocked but not completed, generally)
-                    const isNext = level.id === latestLevelId;
+            <div className={styles.courseGrid}>
+                {courses.map((course) => {
+                    const title = currentLocale === 'ko' ? course.title_ko : course.title_en;
+                    const desc = currentLocale === 'ko' ? course.desc_ko : course.desc_en;
 
-                    // Localized Title/Desc
-                    const title = level.translations?.[currentLocale]?.title || level.title;
-                    const desc = level.translations?.[currentLocale]?.description || level.description;
+                    return (
+                        <Link
+                            key={course.id}
+                            href={`/practice/${language}/${course.id}`}
+                            className={styles.courseCard}
+                        >
+                            {course.isPremium && <div className={styles.premiumBadge}>PREMIUM</div>}
 
-                    if (isUnlocked) {
-                        return (
-                            <Link
-                                key={level.id}
-                                href={`/practice/${language}/${level.id}`}
-                                className={`${styles.card} ${level.type === 'challenge' ? styles.challenge : ''} ${isNext ? styles.activeLevel : ''}`}
-                                ref={isNext ? currentLevelRef : null}
-                            >
-                                <div className={styles.cardContent}>
-                                    <span className={`${styles.levelNum} ${safeCompletedLevels.includes(level.id) ? styles.completedNum : ''}`}>
-                                        {safeCompletedLevels.includes(level.id) ? '✓' : level.id}
-                                    </span>
-                                    <div className={styles.info}>
-                                        <span className={styles.levelTitle}>{title}</span>
-                                        <span className={styles.levelDesc}>{desc}</span>
-                                    </div>
-                                    {level.type === 'challenge' && <span className={styles.challengeLabel}>CHALLENGE</span>}
+                            <div>
+                                <span className={styles.cardIcon}>{course.icon}</span>
+                                <span className={styles.cardTitle}>{title}</span>
+                                <p className={styles.cardDesc}>{desc}</p>
+                            </div>
+
+                            <div className={styles.cardStats}>
+                                <div className={styles.statItem}>
+                                    <span>{currentLocale === 'ko' ? '레벨 수:' : 'Levels:'}</span>
+                                    <span className={styles.statValue}>{course.levels}</span>
                                 </div>
-                            </Link>
-                        );
-                    } else {
-                        return (
-                            <div key={level.id} className={`${styles.card} ${styles.locked}`}>
-                                <div className={styles.cardContent}>
-                                    <span className={styles.levelNum}>{level.id}</span>
-                                    <div className={styles.info}>
-                                        <span className={styles.levelTitle}>{title}</span>
-                                        <span className={styles.levelDesc}>Locked</span>
-                                    </div>
-                                    <span className={styles.lockIcon}>🔒</span>
+                                <div className={styles.statItem}>
+                                    <span>{currentLocale === 'ko' ? '난이도:' : 'Level:'}</span>
+                                    <span className={styles.statValue}>{course.difficulty}</span>
                                 </div>
                             </div>
-                        );
-                    }
+                        </Link>
+                    );
                 })}
             </div>
-
-            {/* Loader Trigger */}
-            {visibleCount < PYTHON_LEVELS.length && (
-                <div ref={loaderRef} className={styles.loadingTrigger}>
-                    Loading more...
-                </div>
-            )}
         </div>
     );
 }

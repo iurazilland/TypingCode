@@ -44,30 +44,31 @@
 
 ## Phase 5: 연습 탐색 및 실행 흐름 (Navigation & Execution Flow)
 **Goal**: 사용자가 언어와 레벨을 선택하고, 실제 연습 화면까지 매끄럽게 이동하는 흐름 구현.
-- [ ] **5.1 언어 선택 화면 (`src/app/practice/page.tsx`)**
-    - [ ] 언어 카드 (Python, JS, C++) 그리드 레이아웃
-    - [ ] 각 언어별 아이콘 및 설명 추가
-- [ ] **5.2 레벨 선택 화면 (`src/app/practice/[language]/page.tsx`)**
-    - [ ] 1~100 레벨 그리드 리스트 UI
-    - [ ] 잠금(Lock)/해제(Unlock) 시각적 상태 구분
-- [ ] **5.3 동적 타이핑 페이지 (`src/app/practice/[language]/[level]/page.tsx`)**
-    - [x] 기본 페이지 구조 생성 완료
-    - [ ] 실제 레벨 데이터(`params`)를 받아와서 `TypingArea` 초기화하는 로직 연동
+- [x] **5.1 언어 선택 화면 (`src/app/practice/page.tsx`)**
+    - [x] 언어 카드 (Python, JS, C++) 그리드 레이아웃
+    - [x] 각 언어별 아이콘 및 설명 추가
+- [x] **5.2 레벨 선택 화면 (`src/app/practice/[language]/page.tsx`)**
+    - [x] 1~100 레벨 리스트 UI (무한 스크롤 및 자동 스크롤 적용)
+    - [x] 잠금(Lock)/해제(Unlock) 시각적 상태 구분 및 로직 구현
+- [x] **5.3 동적 타이핑 페이지 (`src/app/practice/[language]/[level]/page.tsx`)**
+    - [x] 기본 페이지 구조 생성 및 반응형 스케일링 레이아웃
+    - [x] 레벨 데이터(`params`) 연동 및 UI 초기화
 
 ## Phase 6: 콘텐츠 데이터 구축 (Content Engineering)
 **Goal**: 정적/동적 레벨 데이터를 구조화하고 100개의 실제 연습 콘텐츠 생성.
-- [ ] **6.1 레벨 데이터 구조 설계**
-    - [ ] `src/lib/levels.ts`: Level 인터페이스 (Type, Difficulty, Description, Code)
-- [ ] **6.2 콘텐츠 생성 (Mock & Real)**
-    - [ ] Python 레벨 1~100 생성 (기초 문법 ~ 알고리즘)
-    - [ ] 10단위 'Challenge' 문제 구성
+- [x] **6.1 레벨 데이터 구조 설계**
+    - [x] `src/lib/types.ts`: Level 인터페이스 및 다국어 지원 설계
+- [x] **6.2 콘텐츠 생성 (Mock & Real)**
+    - [x] Python 레벨 1~100 데이터 생성 완료 (`python-levels.ts`)
+    - [x] 다국어(KO, EN 등) 번역 데이터 포함
 - [ ] **6.3 챌린지 모드 구현**
     - [ ] 타이핑 완료 후 정답 검증 로직 (Output 비교)
 
 ## Phase 7: 사용자 인증 및 저장 (Backend & Supabase)
-- [ ] Supabase 프로젝트 설정
-- [ ] 로그인/회원가입 UI 및 OAuth 연동
-- [ ] `user_progress` 테이블: 레벨 클리어 정보 저장 및 불러오기
+- [x] Supabase 프로젝트 설정 및 GitHub OAuth 연동 완료
+- [x] Next.js 미들웨어 및 서버/클라이언트 인증 환경 구성
+- [ ] `levels`, `completed_levels` 테이블: DB 마이그레이션 및 데이터 연동
+- [ ] `user_progress` 실시간 동기화 (Local Storage -> Supabase)
 
 ## Phase 8: 고도화 및 최적화 (Advanced)
 - [ ] **실시간 구문 강조 (Typed Syntax Highlighting)**: 입력된 텍스트에 문법 색상 적용

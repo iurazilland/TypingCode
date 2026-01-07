@@ -1,0 +1,185 @@
+"use client";
+
+import { useEffect, useState, useRef, useCallback } from 'react';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import TypingArea from '@/components/editor/TypingArea';
+import ConsoleOutput from '@/components/console/ConsoleOutput';
+import VirtualKeyboard from '@/components/ui/VirtualKeyboard';
+import { usePyodide } from '@/hooks/usePyodide';
+import { useTypingStore } from '@/lib/store';
+import { useProgressStore } from '@/lib/progress';
+import { useLocaleStore } from '@/lib/i18n';
+import { createClient } from '@/lib/supabase/client';
+import { Level } from '@/lib/types';
+import styles from './TypingPage.module.css';
+
+export default function PracticePage() {
+    const { runCode, output, isLoading, isPackagesLoading, isError } = usePyodide();
+    const { userInput, isCompleted, setTargetCode } = useTypingStore();
+    const { currentLocale } = useLocaleStore();
+    const { markLevelComplete } = useProgressStore();
+
+    const params = useParams();
+    const router = useRouter();
+    const supabase = createClient();
+
+    const [levelData, setLevelData] = useState<Level | null>(null);
+    const [isDataLoading, setIsDataLoading] = useState(true);
+
+    const language = (params.language as string) || 'python';
+    const courseId = (params.course as string) || 'basic';
+    const levelId = Number(params.level);
+
+    useEffect(() => {
+        const fetchLevel = async () => {
+            setIsDataLoading(true);
+            const { data, error } = await supabase
+                .from('levels')
+                .select('*')
+                .eq('language', language)
+                .eq('course_id', courseId) // Filter by course_id
+                .eq('list_order', levelId)
+                .single();
+
+            if (data) {
+                setLevelData(data);
+                setTargetCode(data.target_code);
+            }
+            setIsDataLoading(false);
+        };
+        fetchLevel();
+    }, [language, courseId, levelId, setTargetCode]);
+
+    const handleRunCode = useCallback(async (code: string) => {
+        let preppedCode = code;
+        if (code.includes('matplotlib')) {
+            preppedCode = `
+import matplotlib
+matplotlib.use('module://matplotlib.backends.html5_canvas_backend')
+import matplotlib.pyplot as plt
+from js import document
+
+plt.figure()
+${code}
+`;
+        }
+        await runCode(preppedCode);
+    }, [runCode]);
+
+    useEffect(() => {
+        if (isCompleted && levelData) {
+            const fullCode = [
+                levelData.pre_code || '',
+                userInput,
+                levelData.post_code || ''
+            ].join('\n').trim();
+
+            handleRunCode(fullCode);
+            markLevelComplete(levelData.list_order);
+        }
+    }, [isCompleted, userInput, handleRunCode, levelData, markLevelComplete]);
+
+    const [scale, setScale] = useState(1);
+
+    useEffect(() => {
+        const handleResize = () => {
+            const availableHeight = window.innerHeight - 100;
+            const targetHeight = 1100;
+            const newScale = Math.min(1, availableHeight / targetHeight);
+            setScale(newScale);
+        };
+        window.addEventListener('resize', handleResize);
+        handleResize();
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    if (isDataLoading) {
+        return <div className={styles.container} style={{ justifyContent: 'center' }}><h1>Loading Level...</h1></div>;
+    }
+
+    if (!levelData) {
+        return (
+            <div className={styles.container} style={{ justifyContent: 'center' }}>
+                <h1>Level Not Found</h1>
+                <Link href={`/practice/${language}/${courseId}`} className={styles.navLink}>Return to Level Selection</Link>
+            </div>
+        );
+    }
+
+    const title = currentLocale === 'ko' ? (levelData.title_ko || levelData.title_en) : levelData.title_en;
+    const description = currentLocale === 'ko' ? (levelData.desc_ko || levelData.desc_en) : levelData.desc_en;
+    const guide = currentLocale === 'ko' ? levelData.guide_ko : null;
+
+    return (
+        <main className={styles.container}>
+            {isPackagesLoading && (
+                <div className={styles.packageLoader}>
+                    <div className={styles.loaderSpinner}></div>
+                    <p>Installing Python Packages...</p>
+                    <span>This might take a moment on the first run.</span>
+                </div>
+            )}
+
+            <div className={styles.scaleWrapper} style={{ zoom: scale }}>
+                <header className={styles.header}>
+                    <div className={styles.titleGroup}>
+                        <Link href={`/practice/${language}/${courseId}`} className={styles.navLink}>&larr; Levels</Link>
+                        <h1>
+                            {title} <span className={styles.levelBadge}>#{levelId}</span>
+                        </h1>
+                    </div>
+                </header>
+
+                <div className={styles.workspace}>
+                    <div className={styles.topRow}>
+                        <section className={styles.section}>
+                            <ConsoleOutput
+                                output={output}
+                                isError={isError}
+                                isLoading={isLoading}
+                                className="console-output"
+                            />
+                            {isCompleted && !isLoading && !isPackagesLoading && (
+                                <div className={styles.completedBadge}>✨ Completed!</div>
+                            )}
+                        </section>
+
+                        <section className={`${styles.section} ${styles.viewerSection}`}>
+                            <div className={styles.viewerHeader}>
+                                <span>{courseId === 'basic' ? 'Guide / Instruction' : 'Visualization / Viewer'}</span>
+                            </div>
+                            <div className={styles.viewerContent}>
+                                {(courseId !== 'basic' && (levelData.target_code.includes('plt.') || levelData.pre_code?.includes('plt.'))) ? (
+                                    <div id="plot-target" className={styles.plotTarget}>
+                                        {!output.length && <div className={styles.plotPlaceholder}>Graph will appear here</div>}
+                                    </div>
+                                ) : (
+                                    <div className={styles.instructionBox}>
+                                        <h3>{title}</h3>
+                                        <p>{description}</p>
+                                        {guide && (
+                                            <div className={styles.levelGuide}>
+                                                <strong>💡 Tip:</strong> {guide}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+                    </div>
+                    <section className={`${styles.section} ${styles.bottomRow}`}>
+                        <TypingArea className="typing-area" />
+                    </section>
+                </div>
+
+                <div className={styles.keyboardContainer}>
+                    <VirtualKeyboard nextChar={userInput.length < levelData.target_code.length
+                        ? levelData.target_code[userInput.length]
+                        : ''}
+                    />
+                </div>
+            </div>
+        </main>
+    );
+}

@@ -7,11 +7,12 @@ interface ConsoleOutputProps {
     output: string[]; // Array of output lines
     isError?: boolean;
     isLoading?: boolean;
+    className?: string;
 }
 
-export default function ConsoleOutput({ output, isError, isLoading }: ConsoleOutputProps) {
+export default function ConsoleOutput({ output, isError, isLoading, className }: ConsoleOutputProps) {
     return (
-        <div className={styles.container}>
+        <div className={`${styles.container} ${className || ''}`}>
             <div className={styles.header}>
                 <span className={styles.title}>Terminal / Output</span>
                 {isLoading && <span className={styles.loading}>Running...</span>}

@@ -4,7 +4,11 @@ import React, { useEffect, useRef } from 'react';
 import { useTypingStore } from '@/lib/store';
 import styles from './TypingArea.module.css';
 
-export default function TypingArea() {
+interface TypingAreaProps {
+    className?: string;
+}
+
+export default function TypingArea({ className }: TypingAreaProps) {
     const { targetCode, userInput, setUserInput, isCompleted } = useTypingStore();
     const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -72,7 +76,7 @@ export default function TypingArea() {
     };
 
     return (
-        <div className={styles.container} onClick={() => inputRef.current?.focus()}>
+        <div className={`${styles.container} ${className || ''}`} onClick={() => inputRef.current?.focus()}>
             {renderTypingClubView()}
 
             <textarea

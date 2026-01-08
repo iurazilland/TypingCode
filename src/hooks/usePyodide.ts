@@ -10,6 +10,7 @@ interface PyodideInterface {
     setStderr: (options: { batched: (msg: string) => void }) => void;
     loadPackage: (packages: string[]) => Promise<void>;
     loadPackagesFromImports: (code: string) => Promise<void>;
+    globals: any;
 }
 
 declare global {
@@ -29,6 +30,8 @@ export function usePyodide() {
         let mounted = true;
 
         const initPyodide = async () => {
+            if (pyodide || !mounted) return;
+
             try {
                 if (!window.loadPyodide) {
                     if (!document.getElementById('pyodide-script')) {
@@ -51,20 +54,29 @@ export function usePyodide() {
                         indexURL: "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/"
                     });
 
-                    py.setStdout({
-                        batched: (msg: string) => {
-                            if (mounted) setOutput((prev) => [...prev, msg]);
-                        }
-                    });
+                    // Raw output redirection to avoid buffering issues
+                    py.runPython(`
+                        import sys
+                        from pyodide.ffi import create_proxy
 
-                    py.setStderr({
-                        batched: (msg: string) => {
-                            if (mounted) {
-                                setIsError(true);
-                                setOutput((prev) => [...prev, msg]);
-                            }
-                        }
-                    });
+                        class WebOutput:
+                            def __init__(self, callback):
+                                self.callback = callback
+                            def write(self, s):
+                                self.callback(s)
+                            def flush(self):
+                                pass
+
+                        def setup_stdout(cb):
+                            sys.stdout = WebOutput(create_proxy(cb))
+                            sys.stderr = WebOutput(create_proxy(cb))
+                    `);
+
+                    const outputCallback = (msg: string) => {
+                        if (mounted) setOutput((prev) => [...prev, msg]);
+                    };
+
+                    py.globals.get("setup_stdout")(outputCallback);
 
                     if (mounted) {
                         setPyodide(py);
@@ -72,7 +84,10 @@ export function usePyodide() {
                     }
                 }
             } catch (err) {
-                if (mounted) console.error("Pyodide init failed:", err);
+                if (mounted) {
+                    console.error("Pyodide init failed:", err);
+                    setIsLoading(false);
+                }
             }
         };
 
@@ -93,7 +108,11 @@ export function usePyodide() {
             await pyodide.loadPackagesFromImports(code);
             setIsPackagesLoading(false);
 
+            // Execute the code
             await pyodide.runPythonAsync(code);
+
+            // Explicitly flush to handle any remaining output
+            pyodide.runPython('import sys; sys.stdout.flush()');
         } catch (err: any) {
             setIsPackagesLoading(false);
             setIsError(true);
@@ -101,5 +120,10 @@ export function usePyodide() {
         }
     }, [pyodide]);
 
-    return { runCode, output, isLoading, isPackagesLoading, isError };
+    const clearOutput = useCallback(() => {
+        setOutput([]);
+        setIsError(false);
+    }, []);
+
+    return { runCode, clearOutput, output, isLoading, isPackagesLoading, isError };
 }

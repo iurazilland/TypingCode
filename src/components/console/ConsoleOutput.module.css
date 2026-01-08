@@ -34,9 +34,12 @@
     font-style: italic;
 }
 
-.line {
-    margin-bottom: 0.25rem;
+.terminalText {
+    margin: 0;
     white-space: pre-wrap;
+    word-break: break-all;
+    font-family: inherit;
+    font-size: inherit;
 }
 
 .error {

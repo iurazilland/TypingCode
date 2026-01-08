@@ -6,39 +6,78 @@ import styles from './TypingArea.module.css';
 
 interface TypingAreaProps {
     className?: string;
+    onFinalComplete?: () => void;
 }
 
-export default function TypingArea({ className }: TypingAreaProps) {
-    const { targetCode, userInput, setUserInput, isCompleted } = useTypingStore();
+export default function TypingArea({ className, onFinalComplete }: TypingAreaProps) {
+    const { targetCode, userInput, setUserInput, isCompleted, nextSet, codeSets, currentSetIndex } = useTypingStore();
     const inputRef = useRef<HTMLTextAreaElement>(null);
 
-    // 1. "Type Anywhere" - Global Focus Strategy
-    // We attach a click listener to the document. If the target isn't a specific interactive element,
-    // we focus our hidden textarea. This allows users to type without explicitly clicking the box.
-    useEffect(() => {
-        const handleGlobalClick = (e: MouseEvent) => {
-            // Allow interaction with buttons/inputs (e.g. Virtual Keyboard) without stealing focus immediately
-            // But for general page clicks, focus the textarea.
-            const target = e.target as HTMLElement;
-            if (['BUTTON', 'A', 'INPUT'].includes(target.tagName)) return;
+    const isAllSetsCompleted = isCompleted && currentSetIndex === codeSets.length - 1;
 
-            // Prevent focus stealing if user is selecting text? 
-            // For now, prioritize "always type" as requested.
+    // 1. "Type Anywhere" - Global Focus Strategy
+    useEffect(() => {
+        // Auto-focus on mount
+        const focusInput = () => {
+            // Don't steal focus if the user is explicitly in another interactive element
+            const activeTag = document.activeElement?.tagName;
+            if (['BUTTON', 'A', 'INPUT', 'TEXTAREA'].includes(activeTag || '')) return;
             inputRef.current?.focus();
         };
 
-        document.addEventListener('click', handleGlobalClick);
-        return () => document.removeEventListener('click', handleGlobalClick);
+        focusInput();
+
+        const handleGlobalInteraction = (e: Event) => {
+            // For both clicks and key presses, ensure focus is on our input
+            const target = e.target as HTMLElement;
+            if (['BUTTON', 'A', 'INPUT', 'TEXTAREA'].includes(target.tagName)) return;
+
+            // Short delay to ensure browser doesn't block focus attempt
+            setTimeout(() => inputRef.current?.focus(), 0);
+        };
+
+        document.addEventListener('click', handleGlobalInteraction);
+        window.addEventListener('keydown', handleGlobalInteraction);
+        window.addEventListener('focus', focusInput); // Focus when window is refocused
+
+        return () => {
+            document.removeEventListener('click', handleGlobalInteraction);
+            window.removeEventListener('keydown', handleGlobalInteraction);
+            window.removeEventListener('focus', focusInput);
+        };
     }, []);
+
+    // 2. Handle Enter to move to next set or next level
+    useEffect(() => {
+        if (!isCompleted) return;
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent Enter from being typed in the next set
+
+                if (isAllSetsCompleted) {
+                    onFinalComplete?.();
+                } else {
+                    nextSet();
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isCompleted, isAllSetsCompleted, nextSet, onFinalComplete]);
 
     // Handle Input Change
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        if (isCompleted) return; // Stop input after completion until next set
         setUserInput(e.target.value);
     };
 
-    // Typing Club Style: Single view where the code changes color as you type.
-
     const renderTypingClubView = () => {
+        if (typeof targetCode !== 'string') {
+            return <div className={styles.singleCodeBlock}>Error: Invalid code format</div>;
+        }
+
         return (
             <div className={styles.singleCodeBlock}>
                 {targetCode.split('').map((char, index) => {
@@ -48,20 +87,17 @@ export default function TypingArea({ className }: TypingAreaProps) {
                     let className = styles.char;
 
                     if (index < userInput.length) {
-                        // Past characters (Validated)
                         if (inputChar === char) {
                             className = `${styles.char} ${styles.correct}`;
                         } else {
                             className = `${styles.char} ${styles.incorrect}`;
                         }
                     } else {
-                        // Future characters (Pending)
                         className = `${styles.char} ${styles.pending}`;
                     }
 
                     return (
                         <span key={index} className={styles.charWrapper}>
-                            {/* Cursor rendering: If this is the current position, show cursor before char */}
                             {isCurrentCursor && <span className={styles.cursor} />}
                             <span className={className}>
                                 {char === '\n' ? '↵\n' : char}
@@ -69,8 +105,7 @@ export default function TypingArea({ className }: TypingAreaProps) {
                         </span>
                     );
                 })}
-                {/* If cursor is at the very end of text */}
-                {userInput.length === targetCode.length && <span className={styles.cursor} />}
+                {userInput.length === (targetCode?.length || 0) && <span className={styles.cursor} />}
             </div>
         );
     };
@@ -87,7 +122,24 @@ export default function TypingArea({ className }: TypingAreaProps) {
                 spellCheck={false}
                 autoComplete="off"
             />
-            {isCompleted && <div className={styles.successMessage}>Completed!</div>}
+
+            {isCompleted && (
+                <div className={styles.successOverlay}>
+                    {isAllSetsCompleted ? (
+                        <div className={styles.successContent}>
+                            <div className={styles.checkIcon}>🎉</div>
+                            <h3 style={{ color: '#fbbf24' }}>Course Completed!</h3>
+                            <button className={styles.overlayButton} onClick={() => onFinalComplete?.()}>
+                                Next Level ↵
+                            </button>
+                        </div>
+                    ) : (
+                        <button className={styles.overlayButton} onClick={() => nextSet()}>
+                            Next Set ↵
+                        </button>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

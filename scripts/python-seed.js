@@ -1,8 +1,8 @@
 const SEED_DATA = [
-    // --- Lv 1-5: Variable & Print Basics ---
+    // --- Lv 1: Print & Escape (20 Sets) ---
     {
         id: 1,
-        language: 'python',
+        language: 'python_basic',
         course_id: 'basic',
         is_premium: false,
         list_order: 1,
@@ -10,15 +10,35 @@ const SEED_DATA = [
         title_ko: "첫 번째 단계",
         desc_en: "Print your first message in Python.",
         desc_ko: "파이썬으로 첫 메시지를 출력해보세요.",
-        guide_ko: "print() 함수를 사용하여 괄호 안의 문자열을 출력합니다.",
-        guide_en: "Use the print() function to output the string inside the parentheses.",
-        target_code: "print(\"Hello, Python!\")",
+        target_code: [
+            { "code": "print(\"Hello, Python!\")\nprint(\"Welcome to TypingCode.\")", "guide_ko": "print() 함수로 텍스트를 출력합니다." },
+            { "code": "print(\"Line 1\\nLine 2\")\nprint(\"Newline added.\")", "guide_ko": "\\n은 줄을 바꾸는 이스케이프 문자입니다." },
+            { "code": "print(\"ID:\\tuser01\")\nprint(\"Job:\\tCoder\")", "guide_ko": "\\t는 정해진 간격만큼 띄워주는 탭 문자입니다." },
+            { "code": "print(\"A\", \"B\", \"C\", sep=\"-\")", "guide_ko": "sep은 문자들 사이의 구분자를 정합니다." },
+            { "code": "print(\"Wait\", end=\"...\")\nprint(\"Done!\")", "guide_ko": "end를 쓰면 다음 출력과 줄바꿈 없이 이어집니다." },
+            { "code": "print(\"He said, \\\"Hi\\\"\")\nprint('Python\\'s cool')", "guide_ko": "따옴표를 출력하려면 앞에 \\를 붙이세요." },
+            { "code": "print(\"Path: C:\\\\User\\\\Bin\")", "guide_ko": "백슬래시 자체는 \\\\로 두 번 써야 출력됩니다." },
+            { "code": "print(\"=\" * 15)\nprint(\"System Ready\")", "guide_ko": "문자열과 숫자를 곱하면 그만큼 반복 출력됩니다." },
+            { "code": "print(\"Item\", \"Price\", sep=\":\\t\")", "guide_ko": "sep에 탭(\\t)을 섞어 사용할 수 있습니다." },
+            { "code": "print(\"One\", \"Two\", \"Three\", sep=\"\\n\")", "guide_ko": "sep에 줄바꿈(\\n)을 넣어 세로로 출력합니다." },
+            { "code": "print(\"Email\", \"admin@web.com\", sep=\": \")", "guide_ko": "실제 데이터 포맷처럼 구분자를 넣어봅니다." },
+            { "code": "print(\"Step 1\", end=\" -> \")\nprint(\"Step 2\")", "guide_ko": "화살표 모양으로 출력을 이어봅니다." },
+            { "code": "print(\"Loading\", \".\" * 10, sep=\"\")", "guide_ko": "구분자 없이 딱 붙여서 출력하는 방법입니다." },
+            { "code": "print(\"User:\", \"Alice\", \"\\t\", \"Score:\", 95)", "guide_ko": "여러 인자를 탭과 함께 자유롭게 섞어봅니다." },
+            { "code": "print(\"\"\"Multi-line\nStrings are\nEasy.\"\"\")", "guide_ko": "삼중 따옴표 안에서도 이스케이프 문자는 작동합니다." },
+            { "code": "print(\"--- [ LOG ] ---\")\nprint(\"Ready\", \"Set\", \"Go\", sep=\" | \")", "guide_ko": "로그 헤더와 구분자 조합 연습입니다." },
+            { "code": "print(\"Result:\", 10/2, end=\" meters\\n\")", "guide_ko": "계산 결과 뒤에 단위를 붙여 출력합니다." },
+            { "code": "print(\"Name:\\tGuido\", \"Skill:\\tC++/Python\", sep=\"\\n\")", "guide_ko": "여러 줄 정렬 출력 예시입니다." },
+            { "code": "print(\"Progress:\", \"[\", \"#\" * 5, \" \" * 5, \"]\", sep=\"\")", "guide_ko": "로딩 바 모양을 만들어 봅니다." },
+            { "code": "print(\"Congratulations!\", \"Level 1 Complete.\", sep=\"\\n\" + \"-\" * 20 + \"\\n\")", "guide_ko": "[복습] sep 안에 줄바꿈과 대시를 넣어 구분선을 만듭니다." }
+        ],
         difficulty: 'Basic',
         level_type: 'practice'
     },
+    // --- Lv 2-10 Placeholder (Will be replaced later) ---
     {
         id: 2,
-        language: 'python',
+        language: 'python_basic',
         course_id: 'basic',
         is_premium: false,
         list_order: 2,
@@ -26,148 +46,18 @@ const SEED_DATA = [
         title_ko: "데이터 저장하기",
         desc_en: "Use a variable to store and print a value.",
         desc_ko: "변수를 사용하여 값을 저장하고 출력합니다.",
-        guide_ko: "변수를 선언하고 그 값을 print()로 확인해보세요.",
-        guide_en: "Declare a variable and check its value with print().",
-        target_code: "msg = \"Learning Python\"\nprint(msg)",
+        target_code: [{ code: "msg = \"Learning Python\"\nprint(msg)", guide_ko: "변수를 선언하고 그 값을 print()로 확인해보세요." }],
         difficulty: 'Basic',
         level_type: 'practice'
-    },
-    {
-        id: 3,
-        language: 'python',
-        course_id: 'basic',
-        is_premium: false,
-        list_order: 3,
-        title_en: "Basic Calculation",
-        title_ko: "기초 연산",
-        desc_en: "Perform a simple addition.",
-        desc_ko: "간단한 덧셈 연산을 수행합니다.",
-        guide_ko: "+ 연산자를 사용하여 두 숫자를 더해보세요.",
-        guide_en: "Use the + operator to add two numbers.",
-        target_code: "sum = 10 + 20\nprint(sum)",
-        difficulty: 'Basic',
-        level_type: 'practice'
-    },
-    {
-        id: 4,
-        language: 'python',
-        course_id: 'basic',
-        is_premium: false,
-        list_order: 4,
-        title_en: "F-String Formatting",
-        title_ko: "F-문자열 포맷팅",
-        desc_en: "Inject variables into strings easily.",
-        desc_ko: "문자열 안에 변수를 쉽게 삽입하는 방법입니다.",
-        guide_ko: "문자열 앞에 f를 붙이고 { } 안에 변수 명을 넣으세요.",
-        guide_en: "Prefix the string with 'f' and place variable names inside { }.",
-        target_code: "name = \"Python\"\nprint(f\"Welcome to {name}\")",
-        difficulty: 'Basic',
-        level_type: 'practice'
-    },
-    {
-        id: 5,
-        language: 'python',
-        course_id: 'basic',
-        is_premium: false,
-        list_order: 5,
-        title_en: "System Initialization",
-        title_ko: "시스템 초기화",
-        desc_en: "Initialize the system state.",
-        desc_ko: "변수들을 조합하여 시스템 상태를 출력하세요.",
-        guide_ko: "앞서 배운 변환과 f-string을 활용하여 포맷팅된 메시지를 출력합니다.",
-        guide_en: "Use variables and f-strings to output a formatted status message.",
-        target_code: "app_name = \"TypingCode\"\nversion = 1.0\nstatus = \"Online\"\n\nprint(f\"--- {app_name} ---\")\nprint(f\"Ver: {version}\")\nprint(f\"State: {status}\")",
-        difficulty: 'Basic',
-        level_type: 'challenge'
-    },
-    {
-        id: 6,
-        language: 'python',
-        course_id: 'basic',
-        is_premium: false,
-        list_order: 6,
-        title_en: "Uppercase Content",
-        title_ko: "대문자 변환",
-        desc_en: "Convert strings to uppercase.",
-        desc_ko: "문자열을 대문자로 변환합니다.",
-        guide_ko: ".upper() 메서드를 사용하여 모든 글자를 대문자로 바꿉니다.",
-        guide_en: "Use the .upper() method to convert all characters to uppercase.",
-        target_code: "text = \"hello world\"\nprint(text.upper())",
-        difficulty: 'Basic',
-        level_type: 'practice'
-    },
-    {
-        id: 7,
-        language: 'python',
-        course_id: 'basic',
-        is_premium: false,
-        list_order: 7,
-        title_en: "Stripping Whitespace",
-        title_ko: "공백 제거",
-        desc_en: "Remove extra spaces from strings.",
-        desc_ko: "문자열 양쪽의 공백을 제거합니다.",
-        guide_ko: ".strip() 메서드를 사용하여 불필요한 공백을 지워보세요.",
-        guide_en: "Use the .strip() method to remove unnecessary whitespace.",
-        target_code: "raw = \"   python   \"\nclean = raw.strip()\nprint(f\"Length: {len(clean)}\")",
-        difficulty: 'Basic',
-        level_type: 'practice'
-    },
-    {
-        id: 8,
-        language: 'python',
-        course_id: 'basic',
-        is_premium: false,
-        list_order: 8,
-        title_en: "Multi-line Logs",
-        title_ko: "멀티라인 로그",
-        desc_en: "Format long text blocks.",
-        desc_ko: "여러 줄의 텍스트를 한 번에 다룹니다.",
-        guide_ko: "따옴표 세 개(\"\"\")를 사용하여 여러 줄의 문자열을 작성하세요.",
-        guide_en: "Create a multi-line string using triple quotes (\"\"\").",
-        target_code: "log = \"\"\"\n[SYSTEM]\nProcess Started\nSuccess\n\"\"\"\nprint(log)",
-        difficulty: 'Basic',
-        level_type: 'practice'
-    },
-    {
-        id: 9,
-        language: 'python',
-        course_id: 'basic',
-        is_premium: false,
-        list_order: 9,
-        title_en: "Simple Slicing",
-        title_ko: "기초 슬라이싱",
-        desc_en: "Extract parts of a string.",
-        desc_ko: "문자열의 특정 부분을 추출합니다.",
-        guide_ko: "[start:end] 형식을 사용하여 인덱스 3번부터 끝까지 출력해보세요.",
-        guide_en: "Use [3:] to extract the string from index 3 to the end.",
-        target_code: "code = \"PY-2024\"\nyear = code[3:]\nprint(year)",
-        difficulty: 'Basic',
-        level_type: 'practice'
-    },
-    {
-        id: 10,
-        language: 'python',
-        course_id: 'basic',
-        is_premium: false,
-        list_order: 10,
-        title_en: "User Profile Creator",
-        title_ko: "유저 프로필 생성기",
-        desc_en: "Generate a profile summary.",
-        desc_ko: "유저 정보를 정해진 형식으로 출력하세요.",
-        guide_ko: "upper()와 f-string을 결합하여 프로필 리포트를 만듭니다.",
-        guide_en: "Combine upper() and f-strings to generate a profile report.",
-        target_code: "user_id = \"dev_01\"\nscore = 4500\nreport = f\"ID: {user_id.upper()}\\nScore: {score:,}\"\nprint(report)",
-        difficulty: 'Basic',
-        level_type: 'challenge'
     }
 ];
 
-// Add placeholders for 11-100
-for (let i = 11; i <= 100; i++) {
+// Add placeholders for 3-100 to maintain schema consistency
+for (let i = 3; i <= 100; i++) {
     const isChallenge = i % 5 === 0;
     SEED_DATA.push({
         id: i,
-        language: 'python',
+        language: 'python_basic',
         course_id: 'basic',
         is_premium: false,
         list_order: i,
@@ -175,9 +65,27 @@ for (let i = 11; i <= 100; i++) {
         title_ko: isChallenge ? `챌린지: 단계 ${i}` : `파이썬 기초: ${i}`,
         desc_en: `Mastering Python concepts at Level ${i}.`,
         desc_ko: `${i}단계 개념을 익히고 실습합니다.`,
-        target_code: `print("Python Skill Level: ${i}")`,
+        target_code: [{ code: `print("Python Skill Level: ${i}")`, guide_ko: `${i}단계 연습 코드를 작성해 보세요.` }],
         difficulty: i > 80 ? 'Advanced' : i > 40 ? 'Intermediate' : 'Basic',
         level_type: isChallenge ? 'challenge' : 'practice'
+    });
+}
+
+// --- Python Data Science course (python_data) ---
+for (let i = 1; i <= 50; i++) {
+    SEED_DATA.push({
+        id: 1000 + i, // Distinct ID range
+        language: 'python_data',
+        course_id: 'data',
+        is_premium: true,
+        list_order: i,
+        title_en: `Data Science Level ${i}`,
+        title_ko: `데이터 분석: ${i}단계`,
+        desc_en: `Professional data manipulation with Pandas & Matplotlib.`,
+        desc_ko: `Pandas와 Matplotlib을 활용한 데이터 분석 실습입니다.`,
+        target_code: [{ code: `import pandas as pd\nprint("Data analysis ${i}")`, guide_ko: `데이터 분석 ${i}단계 연습입니다.` }],
+        difficulty: 'Advanced',
+        level_type: 'practice'
     });
 }
 

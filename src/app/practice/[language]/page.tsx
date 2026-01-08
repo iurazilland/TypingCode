@@ -26,7 +26,7 @@ export default function CourseSelectionPage() {
             difficulty: 'Beginner'
         },
         {
-            id: 'advanced',
+            id: 'data',
             title_en: 'Data Science & Plotting',
             title_ko: '데이터 분석 및 시각화',
             desc_en: 'Learn professional libraries like Pandas and Matplotlib. Includes real-time graph rendering.',

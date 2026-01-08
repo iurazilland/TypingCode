@@ -17,10 +17,16 @@ interface VirtualKeyboardProps {
 
 export default function VirtualKeyboard({ nextChar = '' }: VirtualKeyboardProps) {
     const [activeKeys, setActiveKeys] = useState<Set<string>>(new Set());
+    const [isCapsLock, setIsCapsLock] = useState(false);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             setActiveKeys((prev) => new Set(prev).add(e.key.toLowerCase()));
+
+            // Check CapsLock state
+            if (e.getModifierState) {
+                setIsCapsLock(e.getModifierState('CapsLock'));
+            }
         };
 
         const handleKeyUp = (e: KeyboardEvent) => {
@@ -29,6 +35,11 @@ export default function VirtualKeyboard({ nextChar = '' }: VirtualKeyboardProps)
                 newSet.delete(e.key.toLowerCase());
                 return newSet;
             });
+
+            // Update on Up as well (could be toggled)
+            if (e.getModifierState) {
+                setIsCapsLock(e.getModifierState('CapsLock'));
+            }
         };
 
         window.addEventListener('keydown', handleKeyDown);
@@ -48,8 +59,13 @@ export default function VirtualKeyboard({ nextChar = '' }: VirtualKeyboardProps)
             baseClass += ` ${styles.active}`;
         }
 
+        // CapsLock indication
+        if (key === 'CapsLock' && isCapsLock) {
+            baseClass += ` ${styles.locked}`;
+        }
+
         // Guide (Target) - If this key matches nextChar
-        if (nextChar && lowerKey === nextChar.toLowerCase()) {
+        if (nextChar && typeof nextChar === 'string' && lowerKey === nextChar.toLowerCase()) {
             baseClass += ` ${styles.guide}`;
         }
         // Handle special mappings (Space vs ' ')

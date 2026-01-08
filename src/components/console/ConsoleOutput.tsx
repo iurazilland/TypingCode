@@ -21,11 +21,11 @@ export default function ConsoleOutput({ output, isError, isLoading, className }:
                 {output.length === 0 && !isLoading && (
                     <span className={styles.placeholder}>RUN CODE to see output...</span>
                 )}
-                {output.map((line, idx) => (
-                    <div key={idx} className={`${styles.line} ${isError ? styles.error : ''}`}>
-                        {line}
-                    </div>
-                ))}
+                {output.length > 0 && (
+                    <pre className={`${styles.terminalText} ${isError ? styles.error : ''}`}>
+                        {output.join('')}
+                    </pre>
+                )}
             </div>
         </div>
     );

@@ -23,22 +23,54 @@ export const useTypingStore = create<TypingState>((set, get) => ({
   startTime: null,
   isCompleted: false,
 
-  setLevelData: (sets) => set({
-    codeSets: sets,
-    currentSetIndex: 0,
-    targetCode: sets[0]?.code || '',
-    userInput: '',
-    startTime: null,
-    isCompleted: false
-  }),
+  setLevelData: (sets) => {
+    // 1. Normalize 'sets' into an array of CodeSet objects
+    let normalizedSets: CodeSet[] = [];
+    if (Array.isArray(sets)) {
+      normalizedSets = sets;
+    } else if (sets && typeof sets === 'object') {
+      normalizedSets = [sets as any];
+    }
+
+    // 2. Extract the first code string safely (IMPORTANT: Access the .code property)
+    const firstSet = normalizedSets[0];
+    let codeStr = '';
+    if (firstSet) {
+      if (typeof firstSet === 'string') {
+        codeStr = firstSet;
+      } else if (typeof firstSet === 'object' && 'code' in firstSet) {
+        codeStr = (firstSet as any).code || '';
+      }
+    }
+
+    set({
+      codeSets: normalizedSets,
+      currentSetIndex: 0,
+      targetCode: String(codeStr), // Force string
+      userInput: '',
+      startTime: null,
+      isCompleted: false
+    });
+  },
 
   nextSet: () => {
     const { codeSets, currentSetIndex } = get();
     if (currentSetIndex < codeSets.length - 1) {
       const nextIndex = currentSetIndex + 1;
+      const nextSetData = codeSets[nextIndex];
+
+      let nextCode = '';
+      if (nextSetData) {
+        if (typeof nextSetData === 'string') {
+          nextCode = nextSetData;
+        } else if (typeof nextSetData === 'object' && 'code' in nextSetData) {
+          nextCode = (nextSetData as any).code || '';
+        }
+      }
+
       set({
         currentSetIndex: nextIndex,
-        targetCode: codeSets[nextIndex].code,
+        targetCode: String(nextCode),
         userInput: '',
         startTime: null,
         isCompleted: false

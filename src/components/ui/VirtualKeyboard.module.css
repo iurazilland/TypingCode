@@ -70,3 +70,23 @@
 .space {
     width: 340px;
 }
+
+.locked {
+    background-color: #dcfce7 !important;
+    /* Greenish tint for toggle */
+    border: 2px solid #22c55e !important;
+    color: #166534 !important;
+    position: relative;
+}
+
+.locked::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 6px;
+    height: 6px;
+    background-color: #22c55e;
+    border-radius: 50%;
+    box-shadow: 0 0 4px #22c55e;
+}

@@ -15,7 +15,7 @@ import { Level } from '@/lib/types';
 import styles from './TypingPage.module.css';
 
 export default function PracticePage() {
-    const { runCode, output, isLoading, isPackagesLoading, isError } = usePyodide();
+    const { runCode, clearOutput, output, isLoading, isPackagesLoading, isError } = usePyodide();
     const { userInput, isCompleted, targetCode, setLevelData, currentSetIndex, codeSets, nextSet } = useTypingStore();
     const { currentLocale } = useLocaleStore();
     const { markLevelComplete } = useProgressStore();
@@ -34,11 +34,12 @@ export default function PracticePage() {
     useEffect(() => {
         const fetchLevel = async () => {
             setIsDataLoading(true);
+            const dbLanguageId = `${language}_${courseId}`;
+
             const { data, error } = await supabase
                 .from('levels')
                 .select('*')
-                .eq('language', language)
-                .eq('course_id', courseId)
+                .eq('language', dbLanguageId)
                 .eq('list_order', levelId)
                 .single();
 
@@ -67,23 +68,59 @@ ${code}
         await runCode(preppedCode);
     }, [runCode]);
 
-    useEffect(() => {
-        if (isCompleted && levelData) {
-            const currentCode = targetCode;
-            const fullCode = [
-                levelData.pre_code || '',
-                currentCode,
-                levelData.post_code || ''
-            ].join('\n').trim();
+    // Track last executed line count to avoid redundant runs
+    const lastExecutedLineCount = useRef(0);
 
-            handleRunCode(fullCode);
+    // Real-time execution: Run code line-by-line as it's completed correctly
+    useEffect(() => {
+        if (!levelData) return;
+
+        // Find how many lines are correctly typed so far
+        let correctPrefix = "";
+        for (let i = 0; i < userInput.length; i++) {
+            if (userInput[i] === targetCode[i]) {
+                correctPrefix += userInput[i];
+            } else {
+                break;
+            }
+        }
+
+        // Count newlines in correct prefix
+        const completedLines = (correctPrefix.match(/\n/g) || []).length;
+
+        // If the entire text is completed, that counts as the final "line" even without a trailing \n
+        const isFullyDone = isCompleted;
+        const triggerExecution = completedLines > lastExecutedLineCount.current || (isFullyDone && lastExecutedLineCount.current <= completedLines);
+
+        if (triggerExecution) {
+            const codeLines = targetCode.split('\n');
+            const linesToRun = isFullyDone ? codeLines : codeLines.slice(0, completedLines);
+
+            if (linesToRun.length > 0) {
+                const partialCode = [
+                    levelData.pre_code || '',
+                    linesToRun.join('\n'),
+                    isFullyDone ? (levelData.post_code || '') : ''
+                ].join('\n').trim();
+
+                handleRunCode(partialCode);
+                lastExecutedLineCount.current = completedLines;
+            }
 
             // If all sets are completed, mark level as complete
-            if (currentSetIndex === codeSets.length - 1) {
+            if (isFullyDone && currentSetIndex === codeSets.length - 1) {
                 markLevelComplete(levelData.list_order);
             }
         }
-    }, [isCompleted, targetCode, handleRunCode, levelData, markLevelComplete, currentSetIndex, codeSets.length]);
+
+        // Reset tracking when set changes
+    }, [userInput, targetCode, levelData, handleRunCode, isCompleted, currentSetIndex, codeSets.length, markLevelComplete]);
+
+    // Reset line count and terminal when set index changes
+    useEffect(() => {
+        lastExecutedLineCount.current = 0;
+        clearOutput();
+    }, [currentSetIndex, clearOutput]);
 
     const [scale, setScale] = useState(1);
 
@@ -100,7 +137,11 @@ ${code}
     }, []);
 
     if (isDataLoading) {
-        return <div className={styles.container} style={{ justifyContent: 'center' }}><h1>Loading Level...</h1></div>;
+        return (
+            <div className={styles.loadingContainer}>
+                <div className={styles.spinner}></div>
+            </div>
+        );
     }
 
     if (!levelData) {
@@ -117,7 +158,9 @@ ${code}
 
     // Get guide for the CURRENT set
     const currentSet = codeSets[currentSetIndex];
-    const guide = currentLocale === 'ko' ? currentSet?.guide_ko : currentSet?.guide_en;
+    const guide = currentLocale === 'ko'
+        ? (currentSet?.guide_ko || currentSet?.guide_en)
+        : (currentSet?.guide_en || currentSet?.guide_ko);
 
     const isAllSetsCompleted = isCompleted && currentSetIndex === codeSets.length - 1;
 
@@ -151,21 +194,6 @@ ${code}
                                 isLoading={isLoading}
                                 className="console-output"
                             />
-                            {isCompleted && !isLoading && !isPackagesLoading && (
-                                <div className={styles.completedBadge}>
-                                    {isAllSetsCompleted ? "🎉 Course Completed!" : "✨ Set Completed!"}
-                                    {!isAllSetsCompleted && (
-                                        <button className={styles.nextButton} onClick={() => nextSet()}>
-                                            Next Set &rarr;
-                                        </button>
-                                    )}
-                                    {isAllSetsCompleted && levelId < 100 && (
-                                        <Link href={`/practice/${language}/${courseId}/${levelId + 1}`} className={styles.nextButton}>
-                                            Next Level &rarr;
-                                        </Link>
-                                    )}
-                                </div>
-                            )}
                         </section>
 
                         <section className={`${styles.section} ${styles.viewerSection}`}>
@@ -173,7 +201,7 @@ ${code}
                                 <span>{courseId === 'basic' ? 'Guide / Instruction' : 'Visualization / Viewer'}</span>
                             </div>
                             <div className={styles.viewerContent}>
-                                {(courseId !== 'basic' && (targetCode.includes('plt.') || levelData.pre_code?.includes('plt.'))) ? (
+                                {(courseId !== 'basic' && (typeof targetCode === 'string' && targetCode.includes('plt.') || levelData.pre_code?.includes('plt.'))) ? (
                                     <div id="plot-target" className={styles.plotTarget}>
                                         {!output.length && <div className={styles.plotPlaceholder}>Graph will appear here</div>}
                                     </div>
@@ -192,7 +220,16 @@ ${code}
                         </section>
                     </div>
                     <section className={`${styles.section} ${styles.bottomRow}`}>
-                        <TypingArea className="typing-area" />
+                        <TypingArea
+                            className="typing-area"
+                            onFinalComplete={() => {
+                                if (levelId < 100) {
+                                    router.push(`/practice/${language}/${courseId}/${levelId + 1}`);
+                                } else {
+                                    router.push(`/practice/${language}/${courseId}`);
+                                }
+                            }}
+                        />
                     </section>
                 </div>
 

@@ -149,8 +149,30 @@
     font-weight: 800;
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
+    margin-left: 0.5rem;
+}
+
+.difficultyLabel {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
     margin-left: auto;
-    /* Push to right */
+    /* Push tags to the right */
+}
+
+.premiumLabel {
+    background-color: #3b82f6;
+    /* Blue 500 */
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    margin-left: 0.5rem;
 }
 
 /* Locked Level */

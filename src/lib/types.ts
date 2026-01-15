@@ -17,7 +17,7 @@ export interface Level {
     pre_code?: string;
     target_code: CodeSet[]; // Array of practice sets
     post_code?: string;
-    difficulty: 'Basic' | 'Intermediate' | 'Advanced' | 'Master';
+    difficulty: 'Basic' | 'Intermediate' | 'Advanced' | 'Master' | 'Data Science' | string;
     level_type: 'practice' | 'challenge';
 }
 

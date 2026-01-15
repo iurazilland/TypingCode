@@ -32,13 +32,11 @@ export default function LevelSelectionPage() {
     const fetchLevels = async () => {
         setIsLoading(true);
 
-        // Constructaggregated language name for DB query (e.g. python_basic)
-        const dbLanguageId = `${language}_${courseId}`;
-
         const { data, error } = await supabase
             .from('levels')
             .select('*')
-            .eq('language', dbLanguageId)
+            .eq('language', language)
+            .eq('course_id', courseId)
             .order('list_order', { ascending: true });
 
         if (data) {
@@ -132,6 +130,7 @@ export default function LevelSelectionPage() {
                                         <span className={styles.levelTitle}>{title}</span>
                                         <span className={styles.levelDesc}>{desc}</span>
                                     </div>
+                                    {level.difficulty && <span className={styles.difficultyLabel}>{level.difficulty}</span>}
                                     {level.is_premium && <span className={styles.premiumLabel}>PREMIUM</span>}
                                     {level.level_type === 'challenge' && <span className={styles.challengeLabel}>CHALLENGE</span>}
                                 </div>

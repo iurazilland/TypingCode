@@ -2,7 +2,7 @@ const SEED_DATA = [
     // --- Lv 1: Print & Escape (20 Sets) ---
     {
         id: 1,
-        language: 'python_basic',
+        language: 'python',
         course_id: 'basic',
         is_premium: false,
         list_order: 1,
@@ -38,7 +38,7 @@ const SEED_DATA = [
     // --- Lv 2-10 Placeholder (Will be replaced later) ---
     {
         id: 2,
-        language: 'python_basic',
+        language: 'python',
         course_id: 'basic',
         is_premium: false,
         list_order: 2,
@@ -57,7 +57,7 @@ for (let i = 3; i <= 100; i++) {
     const isChallenge = i % 5 === 0;
     SEED_DATA.push({
         id: i,
-        language: 'python_basic',
+        language: 'python',
         course_id: 'basic',
         is_premium: false,
         list_order: i,
@@ -66,7 +66,7 @@ for (let i = 3; i <= 100; i++) {
         desc_en: `Mastering Python concepts at Level ${i}.`,
         desc_ko: `${i}단계 개념을 익히고 실습합니다.`,
         target_code: [{ code: `print("Python Skill Level: ${i}")`, guide_ko: `${i}단계 연습 코드를 작성해 보세요.` }],
-        difficulty: i > 80 ? 'Advanced' : i > 40 ? 'Intermediate' : 'Basic',
+        difficulty: 'Basic',
         level_type: isChallenge ? 'challenge' : 'practice'
     });
 }
@@ -75,7 +75,7 @@ for (let i = 3; i <= 100; i++) {
 for (let i = 1; i <= 50; i++) {
     SEED_DATA.push({
         id: 1000 + i, // Distinct ID range
-        language: 'python_data',
+        language: 'python',
         course_id: 'data',
         is_premium: true,
         list_order: i,
@@ -84,7 +84,7 @@ for (let i = 1; i <= 50; i++) {
         desc_en: `Professional data manipulation with Pandas & Matplotlib.`,
         desc_ko: `Pandas와 Matplotlib을 활용한 데이터 분석 실습입니다.`,
         target_code: [{ code: `import pandas as pd\nprint("Data analysis ${i}")`, guide_ko: `데이터 분석 ${i}단계 연습입니다.` }],
-        difficulty: 'Advanced',
+        difficulty: 'Data Science',
         level_type: 'practice'
     });
 }

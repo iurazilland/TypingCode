@@ -34,12 +34,12 @@ export default function PracticePage() {
     useEffect(() => {
         const fetchLevel = async () => {
             setIsDataLoading(true);
-            const dbLanguageId = `${language}_${courseId}`;
 
             const { data, error } = await supabase
                 .from('levels')
                 .select('*')
-                .eq('language', dbLanguageId)
+                .eq('language', language)
+                .eq('course_id', courseId)
                 .eq('list_order', levelId)
                 .single();
 
@@ -68,57 +68,43 @@ ${code}
         await runCode(preppedCode);
     }, [runCode]);
 
-    // Track last executed line count to avoid redundant runs
-    const lastExecutedLineCount = useRef(0);
+    // Track last executed code content to prevent redundant runs
+    const lastExecCodeRef = useRef<string>("");
 
-    // Real-time execution: Run code line-by-line as it's completed correctly
+    // Real-time execution: Run code only when a line is finished or set is completed
     useEffect(() => {
         if (!levelData) return;
 
-        // Find how many lines are correctly typed so far
-        let correctPrefix = "";
-        for (let i = 0; i < userInput.length; i++) {
-            if (userInput[i] === targetCode[i]) {
-                correctPrefix += userInput[i];
-            } else {
-                break;
-            }
-        }
+        const completedLines = (userInput.match(/\n/g) || []).length;
+        const isFullyDone = isCompleted || userInput.length >= targetCode.length;
 
-        // Count newlines in correct prefix
-        const completedLines = (correctPrefix.match(/\n/g) || []).length;
+        // Trigger only if newline entered or finished
+        if (userInput.endsWith('\n') || isFullyDone) {
+            const inputLines = userInput.split('\n');
+            const linesToRun = isFullyDone ? inputLines : inputLines.slice(0, completedLines);
 
-        // If the entire text is completed, that counts as the final "line" even without a trailing \n
-        const isFullyDone = isCompleted;
-        const triggerExecution = completedLines > lastExecutedLineCount.current || (isFullyDone && lastExecutedLineCount.current <= completedLines);
+            const currentCodeToRun = [
+                levelData.pre_code || '',
+                linesToRun.join('\n'),
+                isFullyDone ? (levelData.post_code || '') : ''
+            ].join('\n').trim();
 
-        if (triggerExecution) {
-            const codeLines = targetCode.split('\n');
-            const linesToRun = isFullyDone ? codeLines : codeLines.slice(0, completedLines);
-
-            if (linesToRun.length > 0) {
-                const partialCode = [
-                    levelData.pre_code || '',
-                    linesToRun.join('\n'),
-                    isFullyDone ? (levelData.post_code || '') : ''
-                ].join('\n').trim();
-
-                handleRunCode(partialCode);
-                lastExecutedLineCount.current = completedLines;
+            // Only run if the code content has actually changed since last execution
+            if (lastExecCodeRef.current !== currentCodeToRun) {
+                if (linesToRun.length > 0 || isFullyDone) {
+                    handleRunCode(currentCodeToRun);
+                    lastExecCodeRef.current = currentCodeToRun;
+                }
             }
 
-            // If all sets are completed, mark level as complete
-            if (isFullyDone && currentSetIndex === codeSets.length - 1) {
+            if (isFullyDone && currentSetIndex === codeSets.length - 1 && isCompleted) {
                 markLevelComplete(levelData.list_order);
             }
         }
-
-        // Reset tracking when set changes
-    }, [userInput, targetCode, levelData, handleRunCode, isCompleted, currentSetIndex, codeSets.length, markLevelComplete]);
+    }, [userInput, levelData, handleRunCode, isCompleted, currentSetIndex, codeSets.length, markLevelComplete, targetCode.length]);
 
     // Reset line count and terminal when set index changes
     useEffect(() => {
-        lastExecutedLineCount.current = 0;
         clearOutput();
     }, [currentSetIndex, clearOutput]);
 
@@ -222,6 +208,7 @@ ${code}
                     <section className={`${styles.section} ${styles.bottomRow}`}>
                         <TypingArea
                             className="typing-area"
+                            isError={isError}
                             onFinalComplete={() => {
                                 if (levelId < 100) {
                                     router.push(`/practice/${language}/${courseId}/${levelId + 1}`);
